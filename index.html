@@ -20,5 +20,457 @@
       src="https://cdn.discordapp.com/emojis/1179048422565761054.webp?size=128&quality=lossless"
       alt=""
     />
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Word Manipulation by Layth</title>
+
+        <script>
+          var totalCost = 0;
+          var fullName, words;
+
+          // this is the start function triggered on load, it contains what will happen when we trigger click on different buttons
+
+          function start() {
+            var radioButtons = document.querySelectorAll('input[name="r"]');
+            var printInfoBtn = document.getElementById("printInfoBtn");
+
+            printInfoBtn.addEventListener("click", printInformation);
+
+            radioButtons.forEach(function (radioButton) {
+              radioButton.addEventListener("change", function () {
+                var selected = document.querySelector(
+                  'input[name="r"]:checked'
+                );
+                displayStatement(selected.value);
+                handleAgeRestriction(selected.value);
+              });
+            });
+          }
+
+          function displayStatement(selectedValue) {
+            var statement = document.getElementById("statement1");
+
+            switch (selectedValue) {
+              case "r1":
+                statement.innerHTML =
+                  "Your age category is CHILD, You aren't authorized to use this service";
+                break;
+              case "r2":
+                statement.innerHTML =
+                  "Your age category is Student, You have a discount of 25% on your fees for the service";
+                break;
+              case "r3":
+                statement.innerHTML =
+                  "Your age category is Adult, You don't have any discount on your fees for the service";
+                break;
+              default:
+                statement.innerHTML = "No option selected";
+                break;
+            }
+          }
+
+          // this part contains all the functions for the services the client could choose from
+
+          function suggestUsername() {
+            fullName = document.getElementById("t1").value;
+            words = fullName.split(" ");
+
+            if (words.length >= 4) {
+              return words[0] + words[3].slice(-2);
+            } else {
+              alert("Please enter a full name with at least 4 sections.");
+              return "";
+            }
+          }
+
+          function suggestPassword() {
+            fullName = document.getElementById("t1").value;
+            words = fullName.split(" ");
+
+            if (words.length >= 4) {
+              var randword1 = Math.floor(Math.random() * 4);
+              var randomword1 = words[randword1];
+
+              var randword2 = Math.floor(Math.random() * 4);
+              var randomword2 = words[randword2];
+
+              var randword3 = Math.floor(Math.random() * 4);
+              var randomword3 = words[randword3];
+
+              var frst = randomword1.slice(0, 3);
+              var last = randomword2.slice(-3);
+              var wlen = randomword3.length;
+
+              var smbl = ["@", "&", "$", "%"];
+              var randomSmbl = smbl[Math.floor(Math.random() * 4)];
+
+              return frst + last + wlen + randomSmbl;
+            } else {
+              alert("Please enter a full name with at least 4 sections.");
+              return "";
+            }
+          }
+
+          function capitalSmallLetter() {
+            fullName = document.getElementById("t1").value;
+            words = fullName.split(" ");
+
+            if (words.length >= 3) {
+              var thrdw = words[2];
+              var halflen = Math.ceil(thrdw.length / 2);
+              var fhalf = thrdw.substring(0, halflen).toUpperCase();
+              var lhalf = thrdw.substring(halflen).toLowerCase();
+              return fhalf + lhalf;
+            } else {
+              alert("Please enter a name with at least 3 sections!");
+              return "";
+            }
+          }
+
+          function fullNameWithoutA() {
+            fullName = document.getElementById("t1").value;
+            return fullName.replace(/a/gi, "");
+          }
+
+          function reverseOrder() {
+            fullName = document.getElementById("t1").value;
+            return fullName.split(" ").reverse().join(" ");
+          }
+
+          // table building and filling the fields with results from functions
+
+          function printInformation() {
+            fullName = document.getElementById("t1").value;
+            var ageCategory = getSelectedAgeCategory();
+            var governorateCategory = document.getElementById(
+              "GovernorateSelection"
+            ).value;
+
+            var table = "<table border='1'>";
+            table += "<tr><td>Full Name</td><td>" + fullName + "</td></tr>";
+            table +=
+              "<tr><td>Age Category</td><td>" + ageCategory + "</td></tr>";
+            table +=
+              "<tr><td>Governorate Category</td><td>" +
+              governorateCategory +
+              "</td></tr>";
+
+            var suggestedUsername = document
+              .getElementById("suggestedUsernameBtn")
+              .classList.contains("active")
+              ? suggestUsername()
+              : "";
+            table +=
+              "<tr><td>Suggested Username</td><td>" +
+              suggestedUsername +
+              "</td></tr>";
+
+            var suggestedPassword = document
+              .getElementById("suggestedPasswordBtn")
+              .classList.contains("active")
+              ? suggestPassword()
+              : "";
+            table +=
+              "<tr><td>Suggested Password</td><td>" +
+              suggestedPassword +
+              "</td></tr>";
+
+            var capitalSmallLetterResult = document
+              .getElementById("capitalSmallLetterBtn")
+              .classList.contains("active")
+              ? capitalSmallLetter()
+              : "";
+            table +=
+              "<tr><td>Capital / Small Letter</td><td>" +
+              capitalSmallLetterResult +
+              "</td></tr>";
+
+            var fullNameWithoutAResult = document
+              .getElementById("fullNameWithoutABtn")
+              .classList.contains("active")
+              ? fullNameWithoutA()
+              : "";
+            table +=
+              "<tr><td>Full name without 'a'</td><td>" +
+              fullNameWithoutAResult +
+              "</td></tr>";
+
+            var reversedFullName = document
+              .getElementById("reverseOrderBtn")
+              .classList.contains("active")
+              ? reverseOrder()
+              : "";
+            table +=
+              "<tr><td>Full name in reverse order</td><td>" +
+              reversedFullName +
+              "</td></tr>";
+
+            var cost = calculateCost();
+            table +=
+              "<tr><td>Cost of the services</td><td>" + cost + " JD</td></tr>";
+
+            table += "</table>";
+
+            var tableContainer = document.createElement("div");
+            tableContainer.innerHTML = table;
+            document.body.appendChild(tableContainer);
+          }
+
+          // this function calculates each fee to the cost that will be shown on the table
+
+          function calculateCost() {
+            var cost = 0;
+            var suggestedUsernameCost = 20;
+            var suggestedPasswordCost = 20;
+            var capitalSmallLetterCost = 5;
+            var fullNameWithoutACost = 10;
+            var reverseOrderCost = 15;
+
+            if (
+              document
+                .getElementById("suggestedUsernameBtn")
+                .classList.contains("active")
+            ) {
+              cost += suggestedUsernameCost;
+            }
+
+            if (
+              document
+                .getElementById("suggestedPasswordBtn")
+                .classList.contains("active")
+            ) {
+              cost += suggestedPasswordCost;
+            }
+
+            if (
+              document
+                .getElementById("capitalSmallLetterBtn")
+                .classList.contains("active")
+            ) {
+              cost += capitalSmallLetterCost;
+            }
+
+            if (
+              document
+                .getElementById("fullNameWithoutABtn")
+                .classList.contains("active")
+            ) {
+              cost += fullNameWithoutACost;
+            }
+
+            if (
+              document
+                .getElementById("reverseOrderBtn")
+                .classList.contains("active")
+            ) {
+              cost += reverseOrderCost;
+            }
+
+            var selected = document.querySelector('input[name="r"]:checked');
+            switch (selected.value) {
+              case "r1":
+                cost = 0;
+                break;
+              case "r2":
+                cost *= 0.75;
+                break;
+              default:
+                break;
+            }
+
+            return cost;
+          }
+
+          // this part classifies the age
+
+          function getSelectedAgeCategory() {
+            var selected = document.querySelector('input[name="r"]:checked');
+            switch (selected.value) {
+              case "r1":
+                return "Kids";
+              case "r2":
+                return "Student";
+              case "r3":
+                return "Adult";
+              default:
+                return "No option selected";
+            }
+          }
+
+          // this part is done to disable the services if the user is below 18 "Child"
+          // idk if this is neccessary for the assignment but it achieves the goal
+
+          function handleAgeRestriction(selectedValue) {
+            var serviceButtons = document.querySelectorAll('button[id$="Btn"]');
+            var printInfoBtn = document.getElementById("printInfoBtn");
+
+            if (selectedValue === "r1") {
+              serviceButtons.forEach(function (btn) {
+                btn.disabled = true;
+                if (btn.classList.contains("active")) {
+                  btn.classList.remove("active");
+                }
+              });
+
+              printInfoBtn.disabled = false;
+
+              alert("Access to services is forbidden for this age category.");
+            } else {
+              serviceButtons.forEach(function (btn) {
+                btn.disabled = false;
+              });
+
+              printInfoBtn.disabled = false;
+            }
+          }
+
+          // this function modifies the table
+
+          function modifyTableAppearance() {
+            var table = document.querySelector("table");
+            var backgroundColorCheckbox = document.getElementById(
+              "backgroundColorCheck"
+            );
+            var fontColorCheckbox = document.getElementById("fontColorCheck");
+            var boldFontCheckbox = document.getElementById("boldFontCheck");
+            var fontSizeCheckbox = document.getElementById("fontSizeCheck");
+
+            if (backgroundColorCheckbox.checked)
+              table.style.backgroundColor = "yellow";
+            else table.style.backgroundColor = "";
+
+            if (fontColorCheckbox.checked) table.style.color = "red";
+            else table.style.color = "";
+
+            if (boldFontCheckbox.checked) table.style.fontWeight = "bold";
+            else table.style.fontWeight = "";
+
+            if (fontSizeCheckbox.checked) table.style.fontSize = "20pt";
+            else table.style.fontSize = "";
+          }
+
+          window.addEventListener("load", start, false);
+        </script>
+        <style>
+          .active {
+            background-color: lightgreen;
+          }
+        </style>
+      </head>
+      <body>
+        <div
+          style="
+            text-align: center;
+            color: red;
+            font-size: 26px;
+            font-weight: bolder;
+          "
+        >
+          Words Manipulation Service
+        </div>
+
+        <p style="font-weight: bold">
+          Enter name (four sections) <input type="text" name="" id="t1" />
+        </p>
+
+        <!--this is the age radio box selection-->
+        <p style="font-weight: bold">Choose Age Category</p>
+        <form>
+          <input type="radio" name="r" value="r1" /> less than 18
+          <input type="radio" name="r" value="r2" /> between 18-25
+          <input type="radio" name="r" value="r3" /> older than 28
+        </form>
+        <p style="background-color: yellow; font-size: 15pt; color: red"></p>
+        <p
+          id="statement1"
+          style="background-color: yellow; font-size: 15pt; color: red"
+        ></p>
+
+        <!--this part is the drop list-->
+
+        <h3>Select your Governorate:</h3>
+        <select id="GovernorateSelection">
+          <option value="North">North Governorate</option>
+          <option value="Middle" selected>Middle Governorate</option>
+          <option value="South">South Governorate</option>
+          <option value="East">East Governorate</option>
+          <option value="West">West Governorate</option>
+        </select>
+
+        <!-- this part is about the services buttons-->
+
+        <p style="font-weight: bold">Choose Services:</p>
+        <button onclick="toggleActive(this)" id="suggestedUsernameBtn">
+          Suggest Username
+        </button>
+        <button onclick="toggleActive(this)" id="suggestedPasswordBtn">
+          Suggest Password
+        </button>
+        <button onclick="toggleActive(this)" id="capitalSmallLetterBtn">
+          Capital / Small Letter
+        </button>
+        <button onclick="toggleActive(this)" id="fullNameWithoutABtn">
+          Full Name without 'a'
+        </button>
+        <button onclick="toggleActive(this)" id="reverseOrderBtn">
+          Reverse Order
+        </button>
+
+        <button id="printInfoBtn">Print Information</button>
+
+        <br />
+
+        <!-- this part is aobut the table modifications-->
+
+        <p style="font-weight: bold">
+          Choose style for summary of your service
+        </p>
+        <label for="backgroundColorCheck">Background Color (Yellow)</label>
+        <input
+          type="checkbox"
+          id="backgroundColorCheck"
+          onclick="modifyTableAppearance()"
+        />
+
+        <label for="fontColorCheck">Font Color (Red)</label>
+        <input
+          type="checkbox"
+          id="fontColorCheck"
+          onclick="modifyTableAppearance()"
+        />
+
+        <label for="font-size">20pt font size</label>
+        <input
+          type="checkbox"
+          id="fontSizeCheck"
+          onclick="modifyTableAppearance()"
+        />
+
+        <label for="boldFontCheck">Bold Font</label>
+        <input
+          type="checkbox"
+          id="boldFontCheck"
+          onclick="modifyTableAppearance()"
+        />
+
+        <script>
+          // it gets confusing without having this :P
+          // what it doesis activating the button with color when clickd
+          function toggleActive(btn) {
+            btn.classList.toggle("active");
+          }
+        </script>
+
+        <!-- 
+     Done By : Layth Nasser AbdulHaq AbuJafar
+     ID : 152681
+     Instructor : Eng Wadee'a
+     Lab : Tue 2:30->4:30
+-->
+      </body>
+    </html>
   </body>
 </html>
